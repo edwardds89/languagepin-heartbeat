@@ -9,17 +9,32 @@ jobs:
   ping:
     runs-on: ubuntu-latest
     steps:
-      - name: Ping keepalive_ping()
+      - name: Ping languagepin
         run: |
-          HTTP_CODE=$(curl -sS -o /tmp/response.txt -w "%{http_code}" \
+          HTTP_CODE=$(curl -sS -o /tmp/lp.txt -w "%{http_code}" \
             -X POST "${{ secrets.SUPABASE_URL }}/rest/v1/rpc/keepalive_ping" \
             -H "apikey: ${{ secrets.SUPABASE_KEY }}" \
             -H "Authorization: Bearer ${{ secrets.SUPABASE_KEY }}" \
             -H "Content-Type: application/json" \
             -d '{}')
-          echo "HTTP $HTTP_CODE: $(cat /tmp/response.txt)"
+          echo "languagepin HTTP $HTTP_CODE: $(cat /tmp/lp.txt)"
           if [ "$HTTP_CODE" -ne 200 ]; then
-            echo "::error::Heartbeat failed"
+            echo "::error::languagepin heartbeat failed"
             exit 1
           fi
-          echo "::notice::alive"
+          echo "::notice::languagepin alive at $(cat /tmp/lp.txt)"
+
+      - name: Ping learning-moments
+        run: |
+          HTTP_CODE=$(curl -sS -o /tmp/lm.txt -w "%{http_code}" \
+            -X POST "${{ secrets.SUPABASE_URL_LM }}/rest/v1/rpc/keepalive_ping" \
+            -H "apikey: ${{ secrets.SUPABASE_KEY_LM }}" \
+            -H "Authorization: Bearer ${{ secrets.SUPABASE_KEY_LM }}" \
+            -H "Content-Type: application/json" \
+            -d '{}')
+          echo "learning-moments HTTP $HTTP_CODE: $(cat /tmp/lm.txt)"
+          if [ "$HTTP_CODE" -ne 200 ]; then
+            echo "::error::learning-moments heartbeat failed"
+            exit 1
+          fi
+          echo "::notice::learning-moments alive at $(cat /tmp/lm.txt)"
